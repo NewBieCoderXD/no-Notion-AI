@@ -1,0 +1,13 @@
+{
+  "manifest_version": 2,
+  "name": "no Notion AI",
+  "version": "1.0",
+  "description": "",
+  "permissions": [],
+  "content_scripts": [
+    {
+      "matches": ["*://www.notion.so/*"],
+      "js": ["content/notion_ai_remover.ts"]
+    }
+  ]
+}

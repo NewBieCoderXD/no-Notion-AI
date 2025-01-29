@@ -9,5 +9,9 @@
       "matches": ["*://www.notion.so/*"],
       "js": ["content/notion_ai_remover.js"]
     }
-  ]
+  ],
+  "icons":{
+    "48":"public/no-notion-ai-48x48.png",
+    "96":"public/no-notion-ai-96x96.png"
+  }
 }

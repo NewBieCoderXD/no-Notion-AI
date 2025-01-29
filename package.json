@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "tsc && shx cp manifest.json dist/manifest.json"
+    "build": "tsc && shx cp manifest.json dist/manifest.json && shx cp -r public dist/public"
   },
   "devDependencies": {
     "shx": "^0.3.4",

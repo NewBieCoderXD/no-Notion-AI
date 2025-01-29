@@ -16,7 +16,9 @@
     "strict": true,
     "target": "esnext",
     "isolatedModules": false,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "rootDir": "./"
   },
   "exclude": [
     "node_modules",

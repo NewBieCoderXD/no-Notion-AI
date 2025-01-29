@@ -7,7 +7,7 @@
   "content_scripts": [
     {
       "matches": ["*://www.notion.so/*"],
-      "js": ["content/notion_ai_remover.ts"]
+      "js": ["content/notion_ai_remover.js"]
     }
   ]
 }

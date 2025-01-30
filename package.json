@@ -1,9 +1,20 @@
 {
+  "version":"0.0.4",
+  "config": {
+    "browsers": "firefox,edge_and_chrome"
+  },
   "scripts": {
-    "build": "tsc && shx cp manifest.json dist/manifest.json && shx cp -r public dist/public"
+    "build": "npm run clean && tsx cmd/build.ts",
+    "clean": "shx rm -rf dist"
   },
   "devDependencies": {
+    "@types/archiver": "^6.0.3",
+    "@types/node": "^22.12.0",
     "shx": "^0.3.4",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "archiver": "^7.0.1"
   }
 }

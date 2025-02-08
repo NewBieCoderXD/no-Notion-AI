@@ -65,12 +65,23 @@ function addSpaceKeyMiddleware() {
       if (query.length == 0) {
         return;
       }
-      const placeholderElement = <HTMLInputElement>query[query.length - 1];
+      const placeholderElement = <HTMLDivElement>query[query.length - 1];
       if (
         placeholderElement != undefined &&
         placeholderElement.innerHTML == ""
       ) {
         placeholderElement.innerHTML = "&nbsp;";
+
+        let range = document.createRange();
+        range.selectNodeContents(placeholderElement)
+        range.collapse(false)
+        clickEvent.preventDefault()
+
+        let selection = window.getSelection()!;
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        clickEvent.preventDefault()
       }
     }
   });

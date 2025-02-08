@@ -1,35 +1,58 @@
 import archiver from "archiver";
-import { execSync } from "child_process";
-import { cpSync, createWriteStream, writeFileSync } from "fs";
+import { exec } from "node:child_process";
+import { createWriteStream } from "fs";
+import { cp, writeFile } from "fs/promises";
+import util from "util";
+import { mkdirSync } from "node:fs";
 
 const copyFolders = ["public"];
-const version = process.env["npm_package_version"]!
-const browsers = process.env["npm_package_config_browsers"]?.split(",")!;
-for (let browser of browsers) {
-  console.log(`building ${browser}...`)
+const version = process.env["npm_package_version"]!;
+const browsers = process.env["npm_package_config_browsers"]!.split(",");
+const asyncExec = util.promisify(exec);
+
+async function buildForBrowser(browser: string) {
+  console.log(`building ${browser}...`);
   const browserDir = `dist/${browser}`;
 
+  mkdirSync(browserDir, { recursive: true });
+
   // compile folders with ts
-  execSync(`tsc --outDir ${browserDir}`);
+  const jobs: Promise<unknown>[] = [];
+
+  jobs.push(asyncExec(`tsc --outDir ${browserDir}`));
 
   // copy files that doesn't contain js
-  for (let copyFolder of copyFolders) {
-    cpSync(copyFolder, `${browserDir}/${copyFolder}`, { recursive: true });
+  for (const copyFolder of copyFolders) {
+    jobs.push(
+      cp(copyFolder, `${browserDir}/${copyFolder}`, { recursive: true })
+    );
   }
 
   // create manifest file
-  writeFileSync(`${browserDir}/manifest.json`, getManifestContent(browser));
+  jobs.push(
+    writeFile(`${browserDir}/manifest.json`, getManifestContent(browser))
+  );
 
-  compressDist(browser);
-  console.log(`${browser} is done.`)
+  await Promise.all(jobs);
+
+  await compressDist(browser);
+  console.log(`${browser} is done.`);
 }
 
-function compressDist(browser: string) {
-  let output = createWriteStream(`dist/${browser}.zip`);
-  let archive = archiver("zip");
+async function main() {
+  const jobs: Promise<unknown>[] = [];
+  for (const browser of browsers) {
+    jobs.push(buildForBrowser(browser));
+  }
+  await Promise.all(jobs);
+}
+
+async function compressDist(browser: string) {
+  const output = createWriteStream(`dist/${browser}.zip`);
+  const archive = archiver("zip");
   archive.pipe(output);
   archive.directory(`dist/${browser}`, false);
-  archive.finalize();
+  await archive.finalize();
 }
 
 function getManifestContent(browser: string) {
@@ -55,3 +78,5 @@ function getManifestContent(browser: string) {
     },
   });
 }
+
+main();

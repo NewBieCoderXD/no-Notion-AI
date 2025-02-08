@@ -31,6 +31,9 @@ completely remove Notion AI button
 - After
   ![after](https://github.com/NewBieCoderXD/no-Notion-AI/blob/main/images/action_menu_before.png?raw=true)
 
+## Installation
+Now it is only available for Firefox: https://addons.mozilla.org/en-US/firefox/addon/no-notion-ai/?utm_source=addons.mozilla.org
+
 ## Why?
 
 I don't hate AI, I just don't like the fact that disabling AI feature requires subscription, or SENDING AN EMAIL to notion(Seriously, what kind of UX is that?)

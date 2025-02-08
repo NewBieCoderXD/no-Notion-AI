@@ -32,13 +32,18 @@ completely remove Notion AI button
 - Before
 
   ![before](https://github.com/NewBieCoderXD/no-Notion-AI/blob/main/images/action_menu_before.png?raw=true)
-  
+
 - After
 
   ![after](https://github.com/NewBieCoderXD/no-Notion-AI/blob/main/images/action_menu_after.png?raw=true)
 
 ## Installation
-Now it is only available for Firefox: https://addons.mozilla.org/en-US/firefox/addon/no-notion-ai/?utm_source=addons.mozilla.org
+
+It is available for
+
+- Firefox: https://addons.mozilla.org/en-US/firefox/addon/no-notion-ai/?utm_source=addons.mozilla.org
+
+- Edge: https://microsoftedge.microsoft.com/addons/detail/no-notion-ai/cgkhgmfkbfgocdaeipehccfihklddple
 
 ## Why?
 

@@ -1,0 +1,68 @@
+name: Build and Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Tag name (e.g., v1.0.0)"
+        required: true
+      tag_message:
+        description: "Tag message"
+        required: false
+        default: "New release"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Nodejs
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+
+    - name: Build extension
+      run: |
+        npm install
+        npm run build
+
+    - name: Upload executable as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: firefox.zip
+        path: dist/firefox.zip
+
+    - name: Upload executable as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: edge_and_chrome.zip
+        path: dist/edge_and_chrome.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Create and push tag
+      run: |
+        git tag -a "${{ github.event.inputs.tag_name }}" -m "${{ github.event.inputs.tag_message }}"
+        git push origin "${{ github.event.inputs.tag_name }}"
+
+    - name: Download built artifact
+      uses: actions/download-artifact@v4
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ github.event.inputs.tag_name }}
+        name: Release ${{ github.event.inputs.tag_name }}
+        body: ${{ github.event.inputs.tag_message }}
+        draft: true
+        prerelease: false
+        files:
+        - firefox.zip
+        - edge_and_chrome.zip

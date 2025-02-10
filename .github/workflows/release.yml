@@ -32,14 +32,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: firefox.zip
-          path: dist/firefox/*
+          path: dist/firefox.zip
           if-no-files-found: error
 
       - name: Upload edge_and_chrome.zip as artifact
         uses: actions/upload-artifact@v4
         with:
           name: edge_and_chrome.zip
-          path: dist/edge_and_chrome/*
+          path: dist/edge_and_chrome.zip
           if-no-files-found: error
 
   release:
@@ -66,14 +66,17 @@ jobs:
 
       - name: Download built artifact
         uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
 
-      - run: ls -l
+      - run: ls -l artifacts
 
       - name: Create draft release
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ github.event.inputs.tag_name }}
-          artifacts: "*.zip"
+          artifacts: "artifacts/*.zip"
           draft: true
 
       # - name: Create Release

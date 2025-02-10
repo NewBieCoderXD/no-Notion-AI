@@ -54,7 +54,9 @@ jobs:
       
       - name: Delete a tag
         continue-on-error: true
-        run: git tag -d "${{ github.event.inputs.tag_name }}"
+        run: |
+          git tag -d "${{ github.event.inputs.tag_name }}"
+          git push -d origin "${{ github.event.inputs.tag_name }}"
         
       - name: Create and push tag
         run: |

@@ -28,18 +28,11 @@ jobs:
           npm install
           npm run build
 
-      - name: Upload firefox.zip as artifact
+      - name: Upload compressed zips as an artifact for release
         uses: actions/upload-artifact@v4
         with:
-          name: firefox.zip
-          path: dist/firefox.zip
-          if-no-files-found: error
-
-      - name: Upload edge_and_chrome.zip as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: edge_and_chrome.zip
-          path: dist/edge_and_chrome.zip
+          name: built_package
+          path: dist/*.zip
           if-no-files-found: error
 
   release:
@@ -53,12 +46,12 @@ jobs:
 
       - name: Setup git
         uses: fregante/setup-git-user@v2
-      
+
       - name: Delete a tag
         continue-on-error: true
         run: |
           git push -d origin "${{ github.event.inputs.tag_name }}"
-        
+
       - name: Create and push tag
         run: |
           git tag -a "${{ github.event.inputs.tag_name }}" -m "${{ github.event.inputs.tag_message }}"
@@ -67,29 +60,13 @@ jobs:
       - name: Download built artifact
         uses: actions/download-artifact@v4
         with:
-          path: artifacts
+          name: built_package
+          path: built_package
           merge-multiple: true
-
-      - run: ls -l artifacts
 
       - name: Create draft release
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ github.event.inputs.tag_name }}
-          artifacts: "artifacts/*.zip"
+          artifacts: "built_package/*.zip"
           draft: true
-
-      # - name: Create Release
-      #   id: create_release
-      #   uses: actions/create-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-      #   with:
-      #     tag_name: ${{ github.event.inputs.tag_name }}
-      #     body: ${{ github.event.inputs.tag_message }}
-      #     draft: true
-      #     prerelease: false
-      #     files: |
-      #       firefox.zip
-      #       edge_and_chrome.zip
-      

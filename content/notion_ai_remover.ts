@@ -59,7 +59,7 @@ function removeAISidebar(notionAppNode: HTMLElement) {
 function addSpaceKeyMiddleware() {
   document.addEventListener("keydown", (keyEvent) => {
     if (keyEvent.key == " ") {
-      let rawAnchorNode = document.getSelection()?.anchorNode;
+      const rawAnchorNode = document.getSelection()?.anchorNode;
       let anchorNode: HTMLElement;
       if (rawAnchorNode?.nodeType == Node.TEXT_NODE) {
         anchorNode = rawAnchorNode.parentElement!;
@@ -70,15 +70,15 @@ function addSpaceKeyMiddleware() {
       if (anchorNode.innerHTML != "") {
         return;
       }
-      
+
       anchorNode.innerText += " ";
 
-      let range = document.createRange();
+      const range = document.createRange();
       range.selectNodeContents(anchorNode);
       range.collapse(false);
       keyEvent.preventDefault();
 
-      let selection = window.getSelection()!;
+      const selection = window.getSelection()!;
       selection.removeAllRanges();
       selection.addRange(range);
 

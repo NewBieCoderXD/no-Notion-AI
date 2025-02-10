@@ -57,32 +57,32 @@ function removeAISidebar(notionAppNode: HTMLElement) {
 }
 
 function addSpaceKeyMiddleware() {
-  document.addEventListener("keydown", (clickEvent) => {
-    if (clickEvent.key == " ") {
-      const query = document.querySelectorAll(
-        `div.notranslate:empty:not([placeholder=' '])`
-      );
-      if (query.length == 0) {
+  document.addEventListener("keydown", (keyEvent) => {
+    if (keyEvent.key == " ") {
+      let rawAnchorNode = document.getSelection()?.anchorNode;
+      let anchorNode: HTMLElement;
+      if (rawAnchorNode?.nodeType == Node.TEXT_NODE) {
+        anchorNode = rawAnchorNode.parentElement!;
+      } else {
+        anchorNode = <HTMLElement>rawAnchorNode!;
+      }
+
+      if (anchorNode.innerHTML != "") {
         return;
       }
-      const placeholderElement = <HTMLDivElement>query[query.length - 1];
-      if (
-        placeholderElement != undefined &&
-        placeholderElement.innerHTML == ""
-      ) {
-        placeholderElement.innerHTML = "&nbsp;";
+      
+      anchorNode.innerText += " ";
 
-        let range = document.createRange();
-        range.selectNodeContents(placeholderElement)
-        range.collapse(false)
-        clickEvent.preventDefault()
+      let range = document.createRange();
+      range.selectNodeContents(anchorNode);
+      range.collapse(false);
+      keyEvent.preventDefault();
 
-        let selection = window.getSelection()!;
-        selection.removeAllRanges();
-        selection.addRange(range);
+      let selection = window.getSelection()!;
+      selection.removeAllRanges();
+      selection.addRange(range);
 
-        clickEvent.preventDefault()
-      }
+      keyEvent.preventDefault();
     }
   });
 }

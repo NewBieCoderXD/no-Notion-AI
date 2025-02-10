@@ -9,7 +9,7 @@ on:
       tag_message:
         description: "Tag message"
         required: false
-        default: "New release"
+        default: ""
 
 jobs:
   build:
@@ -48,10 +48,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      
+      - name: Delete a tag
+        continue-on-error: true
+        run: git tag -d "${{ github.event.inputs.tag_name }}"
         
       - name: Create and push tag
         run: |
-          git tag -d "${{ github.event.inputs.tag_name }}"
           git tag -a "${{ github.event.inputs.tag_name }}" -m "${{ github.event.inputs.tag_message }}"
           git push origin "${{ github.event.inputs.tag_name }}"
 

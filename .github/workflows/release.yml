@@ -48,6 +48,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Setup git
+        uses: fregante/setup-git-user@v2
       
       - name: Delete a tag
         continue-on-error: true

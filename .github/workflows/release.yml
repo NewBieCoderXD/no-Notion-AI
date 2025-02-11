@@ -23,6 +23,17 @@ jobs:
         with:
           node-version: 22
 
+      - name: get npm version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
+
+      - name: assert npm version
+        uses: nick-fields/assert-action@v2
+        with:
+          expected: ${{ github.event.inputs.tag_name }}
+          actual: v${{ steps.package-version.outputs.current-version}}
+          comparison: exact
+          
       - name: Build extension
         run: |
           npm install
@@ -46,17 +57,6 @@ jobs:
 
       - name: Setup git
         uses: fregante/setup-git-user@v2
-
-      - name: get npm version
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@v1.3.1
-
-      - name: assert npm version
-        uses: nick-fields/assert-action@v2
-        with:
-          expected: ${{ github.event.inputs.tag_name }}
-          actual: v${{ steps.package-version.outputs.current-version}}
-          comparison: exact
 
       - name: Delete a tag
         continue-on-error: true

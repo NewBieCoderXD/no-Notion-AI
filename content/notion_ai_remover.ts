@@ -10,21 +10,23 @@ function alterPlaceHolderText() {
   );
 }
 
-function removeAIButton(notionAppNode: HTMLElement) {
-  const aiButtonObserver = new MutationObserver(function (
-    _mutations,
-    observer
-  ) {
-    const elements = notionAppNode.querySelectorAll(".notion-ai-button");
-    if (elements.length != 0) {
-      elements.forEach((button) => {
-        button.remove();
-        observer.disconnect();
-      });
-    }
+function repeatObserver(
+  callbackFns: Array<
+    (
+      mutations: MutationRecord[],
+      observer: MutationObserver,
+      node: HTMLElement
+    ) => void
+  >,
+  node: HTMLElement
+) {
+  const observer = new MutationObserver(function (mutations, observer) {
+    callbackFns.forEach((callbackFn) => {
+      callbackFn(mutations, observer, node);
+    });
   });
 
-  aiButtonObserver.observe(notionAppNode, {
+  observer.observe(node, {
     attributes: false,
     childList: true,
     characterData: false,
@@ -32,28 +34,69 @@ function removeAIButton(notionAppNode: HTMLElement) {
   });
 }
 
-function removeAISidebar(notionAppNode: HTMLElement) {
-  const aiSidebarObserver = new MutationObserver(function (
-    _mutations,
-    observer
-  ) {
-    const notionAIElements = notionAppNode.querySelectorAll(
-      ".notion-sidebar > div:nth-child(4) > div:nth-child(5)"
-    );
-    if (notionAIElements.length != 0) {
-      notionAIElements.forEach((ele) => {
-        ele.remove();
-        observer.disconnect();
-      });
+function singleTimeObserver(
+  callbackFn: (
+    mutations: MutationRecord[],
+    observer: MutationObserver,
+    node: HTMLElement
+  ) => boolean,
+  node: HTMLElement
+) {
+  const observer = new MutationObserver(function (mutations, observer) {
+    if (callbackFn(mutations, observer, node)) {
+      observer.disconnect();
     }
   });
 
-  aiSidebarObserver.observe(notionAppNode, {
+  observer.observe(node, {
     attributes: false,
     childList: true,
     characterData: false,
     subtree: true,
   });
+}
+
+function removeAIButton(
+  _mutations: MutationRecord[],
+  _observer: MutationObserver,
+  notionAppNode: HTMLElement
+): boolean {
+  const elements = notionAppNode.querySelectorAll(".notion-ai-button");
+  if (elements.length != 0) {
+    elements.forEach((button) => {
+      button.remove();
+    });
+    return true;
+  }
+  return false;
+}
+
+function removeRunOutOfResponse(
+  _mutations: MutationRecord[],
+  _observer: MutationObserver,
+  notionAppNode: HTMLElement
+): boolean {
+  const runOutOfResponse = notionAppNode.querySelector(
+    ".notion-sidebar .xmark"
+  );
+  if (runOutOfResponse != null) {
+    runOutOfResponse.parentElement?.parentElement?.parentElement?.parentElement?.parentElement?.parentElement?.remove();
+    return true;
+  }
+  return false;
+}
+
+function removeAiMenuSidebar(
+  _mutations: MutationRecord[],
+  _observer: MutationObserver,
+  notionAppNode: HTMLElement
+): boolean {
+  const notionAiMenu = notionAppNode.querySelector(`a[href="/chat"]`);
+  if (notionAiMenu != null) {
+    notionAiMenu?.remove();
+    return true;
+  }
+  return false;
 }
 
 function addSpaceKeyMiddleware() {
@@ -87,28 +130,48 @@ function addSpaceKeyMiddleware() {
   });
 }
 
-function removeFromActionMenu(notionAppNode: HTMLElement) {
-  const aiExplainThisObserver = new MutationObserver(() => {
-    const explainButton = notionAppNode.querySelector(
-      ".notion-text-action-menu .aiExplainThis"
-    );
-    explainButton?.parentElement?.remove();
+function removeFromActionMenu(
+  _mutations: MutationRecord[],
+  _observer: MutationObserver,
+  notionAppNode: HTMLElement
+) {
+  const explainButton = notionAppNode.querySelector(
+    ".notion-text-action-menu .aiExplainThis"
+  );
+  explainButton?.parentElement?.remove();
 
-    const askAIButton = notionAppNode.querySelector(
-      `.notion-text-action-menu div[role="button"] img[alt="Notion AI Face"]`
-    );
-    askAIButton?.parentElement?.remove();
-  });
+  const askAIButton = notionAppNode.querySelector(
+    `.notion-text-action-menu div[role="button"] img[alt="Notion AI Face"]`
+  );
+  askAIButton?.parentElement?.remove();
 
-  aiExplainThisObserver.observe(notionAppNode, {
-    attributes: false,
-    childList: true,
-    characterData: false,
-    subtree: true,
-  });
+  const aiImproveWritingButton = notionAppNode.querySelector(
+    ".notion-text-action-menu .aiImproveWriting"
+  );
+  aiImproveWritingButton?.parentElement?.remove();
 }
 
-function removeNotionAI() {
+function removeFromImage(
+  _mutations: MutationRecord[],
+  _observer: MutationObserver,
+  notionAppNode: HTMLElement
+) {
+  const askAiImageButtons = notionAppNode.querySelectorAll(
+    `div[aria-label="Ask AI"]`
+  );
+  askAiImageButtons.forEach((ele) => {
+    ele.remove();
+  });
+
+  const askAiImageMenu = notionAppNode.querySelector(
+    `div[role="menuitem"] svg.face`
+  );
+  if (askAiImageMenu != null) {
+    askAiImageMenu?.parentElement?.parentElement?.parentElement?.parentElement?.remove();
+  }
+}
+
+function main() {
   alterPlaceHolderText();
 
   const notionAppNode = document.getElementById("notion-app");
@@ -117,14 +180,16 @@ function removeNotionAI() {
     throw new Error("Error cannot find Notion App Node (#notion-app)");
   }
 
-  removeAIButton(notionAppNode);
+  singleTimeObserver(removeAIButton, notionAppNode);
 
-  removeAISidebar(notionAppNode);
+  singleTimeObserver(removeRunOutOfResponse, notionAppNode);
 
-  removeFromActionMenu(notionAppNode);
+  singleTimeObserver(removeAiMenuSidebar, notionAppNode);
+
+  repeatObserver([removeFromActionMenu, removeFromImage], notionAppNode);
 
   addSpaceKeyMiddleware();
 }
 
 console.log("initializing No Notion AI");
-removeNotionAI();
+main();

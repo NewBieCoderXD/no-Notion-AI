@@ -99,6 +99,15 @@ function removeAiMenuSidebar(
   return false;
 }
 
+function removeAiScroller(
+  _mutations: MutationRecord[],
+  _observer: MutationObserver,
+  notionAppNode: HTMLElement
+) {
+  const aiFace = notionAppNode.querySelector(".notion-scroller svg.aiFace");
+  aiFace?.parentElement?.parentElement?.parentElement?.parentElement?.remove();
+}
+
 function addSpaceKeyMiddleware() {
   document.addEventListener("keydown", (keyEvent) => {
     if (keyEvent.key == " ") {
@@ -130,25 +139,29 @@ function addSpaceKeyMiddleware() {
   });
 }
 
+function removeParent(root: HTMLElement, query: string) {
+  root.querySelector(query)?.parentElement?.remove();
+}
+
 function removeFromActionMenu(
   _mutations: MutationRecord[],
   _observer: MutationObserver,
   notionAppNode: HTMLElement
 ) {
-  const explainButton = notionAppNode.querySelector(
-    ".notion-text-action-menu .aiExplainThis"
+  // ai explain button
+  removeParent(notionAppNode, ".notion-text-action-menu .aiExplainThis");
+  removeParent(
+    notionAppNode,
+    ".notion-text-action-menu svg.questionMarkCircle"
   );
-  explainButton?.parentElement?.remove();
-
-  const askAIButton = notionAppNode.querySelector(
+  // ai face
+  removeParent(
+    notionAppNode,
     `.notion-text-action-menu div[role="button"] img[alt="Notion AI Face"]`
   );
-  askAIButton?.parentElement?.remove();
-
-  const aiImproveWritingButton = notionAppNode.querySelector(
-    ".notion-text-action-menu .aiImproveWriting"
-  );
-  aiImproveWritingButton?.parentElement?.remove();
+  // ai improve writing button
+  removeParent(notionAppNode, ".notion-text-action-menu .aiImproveWriting");
+  removeParent(notionAppNode, ".notion-text-action-menu svg.magicWand");
 }
 
 function removeFromImage(
@@ -186,7 +199,10 @@ function main() {
 
   singleTimeObserver(removeAiMenuSidebar, notionAppNode);
 
-  repeatObserver([removeFromActionMenu, removeFromImage], notionAppNode);
+  repeatObserver(
+    [removeFromActionMenu, removeFromImage, removeAiScroller],
+    notionAppNode
+  );
 
   addSpaceKeyMiddleware();
 }

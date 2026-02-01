@@ -223,7 +223,7 @@ function main() {
   singleTimeObserver(removeAiMenuSidebar, notionAppNode);
 
   repeatObserver(
-    [removeFromActionMenu, removeFromGetStarted, removeFromImage, removeBuildWithAi, removeFromSettings],
+    [removeFromActionMenu, removeFromGetStarted, removeFromImage, removeBuildWithAi, removeAIButton, removeFromSettings],
     notionAppNode,
   );
 

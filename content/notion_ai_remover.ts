@@ -194,6 +194,18 @@ function removeFromImage(
     askAiImageMenu?.parentElement?.parentElement?.parentElement?.parentElement?.remove();
   }
 }
+function removeFromSettings(
+  _mutations: MutationRecord[],
+  _observer: MutationObserver,
+  notionAppNode: HTMLElement,
+) {
+    const aiSettings = notionAppNode.querySelector(
+      ".notion-space-settings #settings-tab-ai"
+    );
+    if (aiSettings != null) {
+        aiSettings.remove();
+    }
+}
 
 function main() {
   alterPlaceHolderText();
@@ -209,8 +221,8 @@ function main() {
   singleTimeObserver(removeAiMenuSidebar, notionAppNode);
 
   repeatObserver(
-    [removeFromActionMenu, removeFromGetStarted, removeFromImage, removeAiScroller],
-    notionAppNode
+    [removeFromActionMenu, removeFromGetStarted, removeFromImage, removeAiScroller, removeFromSettings],
+    notionAppNode,
   );
 
   addSpaceKeyMiddleware();

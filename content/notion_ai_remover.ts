@@ -6,7 +6,7 @@ function addCSS(css: string) {
 
 function alterPlaceHolderText() {
   addCSS(
-    `div.notranslate:empty[placeholder*="Write"][placeholder*="AI"]::after { content:"Write something, or press ' / ' for commands…" !important; }`
+    `div.notranslate:empty[placeholder*="Write"][placeholder*="AI"]::after { content:"Write something, or press ' / ' for commands…" !important; }`,
   );
 }
 
@@ -15,10 +15,10 @@ function repeatObserver(
     (
       mutations: MutationRecord[],
       observer: MutationObserver,
-      node: HTMLElement
+      node: HTMLElement,
     ) => void
   >,
-  node: HTMLElement
+  node: HTMLElement,
 ) {
   const observer = new MutationObserver(function (mutations, observer) {
     callbackFns.forEach((callbackFn) => {
@@ -38,9 +38,9 @@ function singleTimeObserver(
   callbackFn: (
     mutations: MutationRecord[],
     observer: MutationObserver,
-    node: HTMLElement
+    node: HTMLElement,
   ) => boolean,
-  node: HTMLElement
+  node: HTMLElement,
 ) {
   const observer = new MutationObserver(function (mutations, observer) {
     if (callbackFn(mutations, observer, node)) {
@@ -59,7 +59,7 @@ function singleTimeObserver(
 function removeAIButton(
   _mutations: MutationRecord[],
   _observer: MutationObserver,
-  notionAppNode: HTMLElement
+  notionAppNode: HTMLElement,
 ): boolean {
   const elements = notionAppNode.querySelectorAll(".notion-ai-button");
   if (elements.length != 0) {
@@ -74,10 +74,10 @@ function removeAIButton(
 function removeRunOutOfResponse(
   _mutations: MutationRecord[],
   _observer: MutationObserver,
-  notionAppNode: HTMLElement
+  notionAppNode: HTMLElement,
 ): boolean {
   const runOutOfResponse = notionAppNode.querySelector(
-    ".notion-sidebar .xmark"
+    ".notion-sidebar .xmark",
   );
   if (runOutOfResponse != null) {
     runOutOfResponse.parentElement?.parentElement?.parentElement?.parentElement?.parentElement?.parentElement?.remove();
@@ -89,9 +89,9 @@ function removeRunOutOfResponse(
 function removeAiMenuSidebar(
   _mutations: MutationRecord[],
   _observer: MutationObserver,
-  notionAppNode: HTMLElement
+  notionAppNode: HTMLElement,
 ): boolean {
-  const notionAiMenu = notionAppNode.querySelector(`a[href="/chat"]`);
+  const notionAiMenu = notionAppNode.querySelector(`a[href="/ai"]`);
   if (notionAiMenu != null) {
     notionAiMenu?.remove();
     return true;
@@ -102,7 +102,7 @@ function removeAiMenuSidebar(
 function removeAiScroller(
   _mutations: MutationRecord[],
   _observer: MutationObserver,
-  notionAppNode: HTMLElement
+  notionAppNode: HTMLElement,
 ) {
   const aiFace = notionAppNode.querySelector(".notion-scroller svg.aiFace");
   aiFace?.parentElement?.parentElement?.parentElement?.parentElement?.remove();
@@ -146,18 +146,18 @@ function removeParent(root: HTMLElement, query: string) {
 function removeFromActionMenu(
   _mutations: MutationRecord[],
   _observer: MutationObserver,
-  notionAppNode: HTMLElement
+  notionAppNode: HTMLElement,
 ) {
   // ai explain button
   removeParent(notionAppNode, ".notion-text-action-menu .aiExplainThis");
   removeParent(
     notionAppNode,
-    ".notion-text-action-menu svg.questionMarkCircle"
+    ".notion-text-action-menu svg.questionMarkCircle",
   );
   // ai face
   removeParent(
     notionAppNode,
-    `.notion-text-action-menu div[role="button"] img[alt="Notion AI Face"]`
+    `.notion-text-action-menu div[role="button"] img[alt="Notion AI Face"]`,
   );
   // ai improve writing button
   removeParent(notionAppNode, ".notion-text-action-menu .aiImproveWriting");
@@ -167,17 +167,17 @@ function removeFromActionMenu(
 function removeFromImage(
   _mutations: MutationRecord[],
   _observer: MutationObserver,
-  notionAppNode: HTMLElement
+  notionAppNode: HTMLElement,
 ) {
   const askAiImageButtons = notionAppNode.querySelectorAll(
-    `div[aria-label="Ask AI"]`
+    `div[aria-label="Ask AI"]`,
   );
   askAiImageButtons.forEach((ele) => {
     ele.remove();
   });
 
   const askAiImageMenu = notionAppNode.querySelector(
-    `div[role="menuitem"] svg.face`
+    `div[role="menuitem"] svg.face`,
   );
   if (askAiImageMenu != null) {
     askAiImageMenu?.parentElement?.parentElement?.parentElement?.parentElement?.remove();
@@ -193,15 +193,13 @@ function main() {
     throw new Error("Error cannot find Notion App Node (#notion-app)");
   }
 
-  singleTimeObserver(removeAIButton, notionAppNode);
-
   singleTimeObserver(removeRunOutOfResponse, notionAppNode);
 
   singleTimeObserver(removeAiMenuSidebar, notionAppNode);
 
   repeatObserver(
-    [removeFromActionMenu, removeFromImage, removeAiScroller],
-    notionAppNode
+    [removeFromActionMenu, removeFromImage, removeAiScroller, removeAIButton],
+    notionAppNode,
   );
 
   addSpaceKeyMiddleware();

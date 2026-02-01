@@ -1,4 +1,4 @@
-// const placeholderText = "Write, press 'space' for AI, ' / ' for commands…";
+// const placeholderText = "Press ‘space’ for AI or ‘/’ for commands";
 
 function addCSS(css: string) {
   document.head.appendChild(document.createElement("style")).innerHTML = css;
@@ -6,7 +6,7 @@ function addCSS(css: string) {
 
 function alterPlaceHolderText() {
   addCSS(
-    `div.notranslate:empty[placeholder*="Write"][placeholder*="AI"]::after { content:"Write something, or press ' / ' for commands…" !important; }`,
+    `div.notranslate:empty[placeholder*="Press"][placeholder*="AI"]::after { content:"Write something, or press ' / ' for commands…" !important; }`,
   );
 }
 
@@ -99,13 +99,15 @@ function removeAiMenuSidebar(
   return false;
 }
 
-function removeAiScroller(
+function removeBuildWithAi(
   _mutations: MutationRecord[],
   _observer: MutationObserver,
   notionAppNode: HTMLElement,
 ) {
-  const aiFace = notionAppNode.querySelector(".notion-scroller svg.aiFace");
-  aiFace?.parentElement?.parentElement?.parentElement?.parentElement?.remove();
+  const aiFace = notionAppNode.querySelector(
+    "div.notion-dialog svg.aiFace"
+  );
+  aiFace?.parentElement?.parentElement?.remove();
 }
 
 function addSpaceKeyMiddleware() {
@@ -163,6 +165,17 @@ function removeFromActionMenu(
   removeParent(notionAppNode, ".notion-text-action-menu .aiImproveWriting");
   removeParent(notionAppNode, ".notion-text-action-menu svg.magicWand");
 }
+function removeFromGetStarted(
+  _mutations: MutationRecord[],
+  _observer: MutationObserver,
+  notionAppNode: HTMLElement
+) {
+  const askAiImageButton = notionAppNode.querySelector(
+    `.notion-frame div[role="menu"] img[alt="Notion AI Face"]`);
+  if (askAiImageButton != null) {
+    askAiImageButton?.parentElement?.parentElement?.parentElement?.remove();
+  }
+}
 
 function removeFromImage(
   _mutations: MutationRecord[],
@@ -183,6 +196,18 @@ function removeFromImage(
     askAiImageMenu?.parentElement?.parentElement?.parentElement?.parentElement?.remove();
   }
 }
+function removeFromSettings(
+  _mutations: MutationRecord[],
+  _observer: MutationObserver,
+  notionAppNode: HTMLElement,
+) {
+    const aiSettings = notionAppNode.querySelector(
+      ".notion-space-settings #settings-tab-ai"
+    );
+    if (aiSettings != null) {
+        aiSettings.remove();
+    }
+}
 
 function main() {
   alterPlaceHolderText();
@@ -198,7 +223,7 @@ function main() {
   singleTimeObserver(removeAiMenuSidebar, notionAppNode);
 
   repeatObserver(
-    [removeFromActionMenu, removeFromImage, removeAiScroller, removeAIButton],
+    [removeFromActionMenu, removeFromGetStarted, removeFromImage, removeBuildWithAi, removeAIButton, removeFromSettings],
     notionAppNode,
   );
 

@@ -99,13 +99,15 @@ function removeAiMenuSidebar(
   return false;
 }
 
-function removeAiScroller(
+function removeBuildWithAi(
   _mutations: MutationRecord[],
   _observer: MutationObserver,
   notionAppNode: HTMLElement,
 ) {
-  const aiFace = notionAppNode.querySelector(".notion-scroller svg.aiFace");
-  aiFace?.parentElement?.parentElement?.parentElement?.parentElement?.remove();
+  const aiFace = notionAppNode.querySelector(
+    "div.notion-dialog svg.aiFace"
+  );
+  aiFace?.parentElement?.parentElement?.remove();
 }
 
 function addSpaceKeyMiddleware() {
@@ -221,7 +223,7 @@ function main() {
   singleTimeObserver(removeAiMenuSidebar, notionAppNode);
 
   repeatObserver(
-    [removeFromActionMenu, removeFromGetStarted, removeFromImage, removeAiScroller, removeFromSettings],
+    [removeFromActionMenu, removeFromGetStarted, removeFromImage, removeBuildWithAi, removeFromSettings],
     notionAppNode,
   );
 

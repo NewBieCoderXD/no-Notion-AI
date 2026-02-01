@@ -104,9 +104,7 @@ function removeBuildWithAi(
   _observer: MutationObserver,
   notionAppNode: HTMLElement,
 ) {
-  const aiFace = notionAppNode.querySelector(
-    "div.notion-dialog svg.aiFace"
-  );
+  const aiFace = notionAppNode.querySelector("div.notion-dialog svg.aiFace");
   aiFace?.parentElement?.parentElement?.remove();
 }
 
@@ -168,10 +166,11 @@ function removeFromActionMenu(
 function removeFromGetStarted(
   _mutations: MutationRecord[],
   _observer: MutationObserver,
-  notionAppNode: HTMLElement
+  notionAppNode: HTMLElement,
 ) {
   const askAiImageButton = notionAppNode.querySelector(
-    `.notion-frame div[role="menu"] img[alt="Notion AI Face"]`);
+    `.notion-frame div[role="menu"] img[alt="Notion AI Face"]`,
+  );
   if (askAiImageButton != null) {
     askAiImageButton?.parentElement?.parentElement?.parentElement?.remove();
   }
@@ -201,12 +200,58 @@ function removeFromSettings(
   _observer: MutationObserver,
   notionAppNode: HTMLElement,
 ) {
-    const aiSettings = notionAppNode.querySelector(
-      ".notion-space-settings #settings-tab-ai"
-    );
-    if (aiSettings != null) {
-        aiSettings.remove();
+  const aiSettings = notionAppNode.querySelector(
+    ".notion-space-settings #settings-tab-ai",
+  );
+  if (aiSettings != null) {
+    aiSettings.remove();
+  }
+}
+
+function removeSearchMatch(
+  _mutations: MutationRecord[],
+  _observer: MutationObserver,
+  notionLayoutContentNode: HTMLElement,
+): boolean {
+  const foundNodes = notionLayoutContentNode.querySelectorAll(
+    ".search-results-list > div > div > div[role='option'], .search-2-snapshot-container > div > div > div[role='option']",
+  );
+  for (const found of foundNodes) {
+    if (
+      found.textContent &&
+      (found.textContent.toLowerCase().includes("notion ai") ||
+        found.textContent.toLowerCase().includes("ai meeting"))
+    ) {
+      // Hide instead of delete to prevent crash
+      (found as HTMLElement).style.display = "none";
+      return true;
     }
+  }
+  return false;
+}
+
+function removeAiSearch(
+  _mutations: MutationRecord[],
+  _observer: MutationObserver,
+  notionLayoutContentNode: HTMLElement,
+): boolean {
+  const found = notionLayoutContentNode.querySelector(
+    ".notion-dialog div[role='presentation']",
+  );
+  if (
+    !found ||
+    !(
+      found.textContent?.toLowerCase().includes("search") ||
+      found.textContent?.toLowerCase().includes("with ai")
+    )
+  ) {
+    return false;
+  }
+  // Hide instead of delete to prevent crash
+  (
+    found.parentElement?.parentElement?.parentElement as HTMLElement
+  ).style.display = "none";
+  return true;
 }
 
 function main() {
@@ -223,7 +268,16 @@ function main() {
   singleTimeObserver(removeAiMenuSidebar, notionAppNode);
 
   repeatObserver(
-    [removeFromActionMenu, removeFromGetStarted, removeFromImage, removeBuildWithAi, removeAIButton, removeFromSettings],
+    [
+      removeFromActionMenu,
+      removeFromGetStarted,
+      removeFromImage,
+      removeAIButton,
+      removeBuildWithAi,
+      removeAiSearch,
+      removeFromSettings,
+      removeSearchMatch,
+    ],
     notionAppNode,
   );
 

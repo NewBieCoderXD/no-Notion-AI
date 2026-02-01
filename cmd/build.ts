@@ -24,13 +24,13 @@ async function buildForBrowser(browser: string) {
   // copy files that doesn't contain js
   for (const copyFolder of copyFolders) {
     jobs.push(
-      cp(copyFolder, `${browserDir}/${copyFolder}`, { recursive: true })
+      cp(copyFolder, `${browserDir}/${copyFolder}`, { recursive: true }),
     );
   }
 
   // create manifest file
   jobs.push(
-    writeFile(`${browserDir}/manifest.json`, getManifestContent(browser))
+    writeFile(`${browserDir}/manifest.json`, getManifestContent(browser)),
   );
 
   await Promise.all(jobs);
@@ -57,13 +57,22 @@ async function compressDist(browser: string) {
 
 function getManifestContent(browser: string) {
   let manifestVersion = 3;
+  let browserSettings = {};
   if (browser == "firefox") {
     manifestVersion = 2;
+    browserSettings = {
+      gecko: {
+        data_collection_permissions: {
+          required: ["none"],
+        },
+      },
+    };
   }
   return JSON.stringify({
     manifest_version: manifestVersion,
     name: "no Notion AI",
     version: version,
+    browser_specific_settings: browserSettings,
     description: "",
     permissions: [],
     content_scripts: [

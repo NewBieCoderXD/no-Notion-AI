@@ -10,7 +10,7 @@
       "dom.iterable",
       "esnext"
     ],
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "module": "esnext",
     "resolveJsonModule": true,
     "strict": true,

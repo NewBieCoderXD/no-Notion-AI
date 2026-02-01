@@ -1,4 +1,4 @@
-// const placeholderText = "Write, press 'space' for AI, ' / ' for commands…";
+// const placeholderText = "Press ‘space’ for AI or ‘/’ for commands";
 
 function addCSS(css: string) {
   document.head.appendChild(document.createElement("style")).innerHTML = css;
@@ -6,7 +6,7 @@ function addCSS(css: string) {
 
 function alterPlaceHolderText() {
   addCSS(
-    `div.notranslate:empty[placeholder*="Write"][placeholder*="AI"]::after { content:"Write something, or press ' / ' for commands…" !important; }`,
+    `div.notranslate:empty[placeholder*="Press"][placeholder*="AI"]::after { content:"Write something, or press ' / ' for commands…" !important; }`,
   );
 }
 

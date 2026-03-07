@@ -162,7 +162,18 @@ function removeFromActionMenu(
   // ai improve writing button
   removeParent(notionAppNode, ".notion-text-action-menu .aiImproveWriting");
   removeParent(notionAppNode, ".notion-text-action-menu svg.magicWand");
+  
+  const aiMenus = notionAppNode.querySelectorAll(".notion-text-action-menu > div > div > div")
+  for (const aiMenu of aiMenus){
+    const textMatches = ["improve","edit with ai"]
+    for(const textMatch of textMatches){
+      if(aiMenu.innerHTML?.toLowerCase().includes(textMatch)){
+        aiMenu.remove()
+      }
+    }
+  }
 }
+
 function removeFromGetStarted(
   _mutations: MutationRecord[],
   _observer: MutationObserver,
@@ -205,6 +216,21 @@ function removeFromSettings(
   );
   if (aiSettings != null) {
     aiSettings.remove();
+  }
+}
+
+function removeFromPageMenu(
+  _mutations: MutationRecord[],
+  _observer: MutationObserver,
+  notionAppNode: HTMLElement,){
+  const aiMenus = notionAppNode.querySelectorAll(".notion-overlay-container div[role='dialog'] > div > div > div > div > div")
+  for (const aiMenu of aiMenus){
+    const textMatches = ["with ai"]
+    for(const textMatch of textMatches){
+      if(aiMenu.innerHTML?.toLowerCase().includes(textMatch)){
+        aiMenu.remove()
+      }
+    }
   }
 }
 
@@ -277,6 +303,7 @@ function main() {
       removeAiSearch,
       removeFromSettings,
       removeSearchMatch,
+      removeFromPageMenu,
     ],
     notionAppNode,
   );

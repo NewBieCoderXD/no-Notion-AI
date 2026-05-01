@@ -32,6 +32,14 @@ function repeatObserver(
     characterData: false,
     subtree: true,
   });
+
+  return {
+    cleanup: () => {
+      if (observer != undefined) {
+        observer.disconnect();
+      }
+    },
+  };
 }
 
 function singleTimeObserver(
@@ -71,6 +79,103 @@ function removeAIButton(
   return false;
 }
 
+function removeAiSidebarHome(
+  _mutations: MutationRecord[],
+  _observer: MutationObserver,
+  notionAppNode: HTMLElement,
+) {
+  let deleted = false;
+
+  const homeAiMeetingNotes = notionAppNode.querySelectorAll(
+    "#sidebar-tabpanel-home > div > div > div > div > div > div > div > div > div > div",
+  );
+  for (const aiMenu of homeAiMeetingNotes) {
+    const textMatches = ["ai meeting"];
+    for (const textMatch of textMatches) {
+      if (aiMenu.innerHTML?.toLowerCase().includes(textMatch)) {
+        (aiMenu as HTMLElement).style.display = "none";
+        deleted = true;
+      }
+    }
+  }
+
+  const agentTitles = notionAppNode.querySelectorAll(
+    "#sidebar-tabpanel-home > div > div > div > div > div > div > div > div > span",
+  );
+  for (const agent of agentTitles) {
+    const textMatches = ["agents"];
+    for (const textMatch of textMatches) {
+      if (agent.innerHTML?.toLowerCase().includes(textMatch)) {
+        (
+          agent.parentElement?.parentElement?.parentElement as HTMLElement
+        ).style.display = "none";
+        deleted = true;
+      }
+    }
+  }
+
+  const agents = notionAppNode.querySelectorAll(
+    "#sidebar-tabpanel-home > div > div > div > div > div > div > div > div > div",
+  );
+  for (const agent of agents) {
+    const textMatches = ["agents"];
+    for (const textMatch of textMatches) {
+      if (agent.innerHTML?.toLowerCase().includes(textMatch)) {
+        (
+          agent.parentElement?.parentElement?.parentElement as HTMLElement
+        ).style.display = "none";
+        deleted = true;
+      }
+    }
+  }
+
+  const notionAiMenu = notionAppNode.querySelector(`a[href="/ai"]`);
+  if (notionAiMenu != null) {
+    (notionAiMenu as HTMLElement).style.display = "none";
+    deleted = true;
+  }
+
+  const newChats = notionAppNode.querySelectorAll(
+    ".notion-sidebar > div > div span",
+  );
+  for (let i = newChats.length - 1; i >= 0; i--) {
+    const newChat = newChats[i];
+    const textMatches = ["new chat"];
+    for (const textMatch of textMatches) {
+      if (newChat.textContent?.toLowerCase().startsWith(textMatch)) {
+        newChat.parentElement!.parentElement!.parentElement!.parentElement!.parentElement!.remove();
+        deleted = true;
+      }
+    }
+  }
+
+  const chats = notionAppNode.querySelector(
+    "#sidebar-tab-chats",
+  ) as HTMLElement;
+  if (chats) {
+    chats.style.display = "none";
+  }
+
+  return deleted;
+}
+
+function removeAiSidebarMeeting() {
+  let deleted = true;
+  const meetingsAiNotes = document.querySelectorAll(
+    "#sidebar-tabpanel-meetings > div > div > div > div > div > div > div",
+  );
+  for (const aiMenu of meetingsAiNotes) {
+    const textMatches = ["ai meeting"];
+    for (const textMatch of textMatches) {
+      if (aiMenu.innerHTML?.toLowerCase().includes(textMatch)) {
+        (aiMenu as HTMLElement).style.display = "none";
+        deleted = true;
+      }
+    }
+  }
+  return deleted;
+}
+
 function removeRunOutOfResponse(
   _mutations: MutationRecord[],
   _observer: MutationObserver,
@@ -80,20 +185,10 @@ function removeRunOutOfResponse(
     ".notion-sidebar .xmark",
   );
   if (runOutOfResponse != null) {
-    runOutOfResponse.parentElement?.parentElement?.parentElement?.parentElement?.parentElement?.parentElement?.remove();
-    return true;
-  }
-  return false;
-}
-
-function removeAiMenuSidebar(
-  _mutations: MutationRecord[],
-  _observer: MutationObserver,
-  notionAppNode: HTMLElement,
-): boolean {
-  const notionAiMenu = notionAppNode.querySelector(`a[href="/ai"]`);
-  if (notionAiMenu != null) {
-    notionAiMenu?.remove();
+    (
+      runOutOfResponse.parentElement?.parentElement?.parentElement
+        ?.parentElement?.parentElement?.parentElement as HTMLElement
+    ).style.display = "none";
     return true;
   }
   return false;
@@ -162,13 +257,15 @@ function removeFromActionMenu(
   // ai improve writing button
   removeParent(notionAppNode, ".notion-text-action-menu .aiImproveWriting");
   removeParent(notionAppNode, ".notion-text-action-menu svg.magicWand");
-  
-  const aiMenus = notionAppNode.querySelectorAll(".notion-text-action-menu > div > div > div")
-  for (const aiMenu of aiMenus){
-    const textMatches = ["improve","edit with ai"]
-    for(const textMatch of textMatches){
-      if(aiMenu.innerHTML?.toLowerCase().includes(textMatch)){
-        aiMenu.remove()
+
+  const aiMenus = notionAppNode.querySelectorAll(
+    ".notion-text-action-menu > div > div > div",
+  );
+  for (const aiMenu of aiMenus) {
+    const textMatches = ["improve", "edit with ai"];
+    for (const textMatch of textMatches) {
+      if (aiMenu.innerHTML?.toLowerCase().includes(textMatch)) {
+        (aiMenu as HTMLElement).style.display = "none";
       }
     }
   }
@@ -183,7 +280,10 @@ function removeFromGetStarted(
     `.notion-frame div[role="menu"] img[alt="Notion AI Face"]`,
   );
   if (askAiImageButton != null) {
-    askAiImageButton?.parentElement?.parentElement?.parentElement?.remove();
+    (
+      askAiImageButton?.parentElement?.parentElement
+        ?.parentElement as HTMLElement
+    ).style.display = "none";
   }
 }
 
@@ -203,7 +303,10 @@ function removeFromImage(
     `div[role="menuitem"] svg.face`,
   );
   if (askAiImageMenu != null) {
-    askAiImageMenu?.parentElement?.parentElement?.parentElement?.parentElement?.remove();
+    (
+      askAiImageMenu?.parentElement?.parentElement?.parentElement
+        ?.parentElement as HTMLElement
+    ).style.display = "none";
   }
 }
 function removeFromSettings(
@@ -215,20 +318,23 @@ function removeFromSettings(
     ".notion-space-settings #settings-tab-ai",
   );
   if (aiSettings != null) {
-    aiSettings.remove();
+    (aiSettings as HTMLElement).style.display = "none";
   }
 }
 
 function removeFromPageMenu(
   _mutations: MutationRecord[],
   _observer: MutationObserver,
-  notionAppNode: HTMLElement,){
-  const aiMenus = notionAppNode.querySelectorAll(".notion-overlay-container div[role='dialog'] > div > div > div > div > div")
-  for (const aiMenu of aiMenus){
-    const textMatches = ["with ai"]
-    for(const textMatch of textMatches){
-      if(aiMenu.innerHTML?.toLowerCase().includes(textMatch)){
-        aiMenu.remove()
+  notionAppNode: HTMLElement,
+) {
+  const aiMenus = notionAppNode.querySelectorAll(
+    ".notion-overlay-container div[role='dialog'] > div > div > div > div > div",
+  );
+  for (const aiMenu of aiMenus) {
+    const textMatches = ["with ai"];
+    for (const textMatch of textMatches) {
+      if (aiMenu.innerHTML?.toLowerCase().includes(textMatch)) {
+        (aiMenu as HTMLElement).style.display = "none";
       }
     }
   }
@@ -280,6 +386,135 @@ function removeAiSearch(
   return true;
 }
 
+function removeGettingStartAskAi(
+  _mutations: MutationRecord[],
+  _observer: MutationObserver,
+  notionAppNode: HTMLElement,
+) {
+  const icons = notionAppNode.querySelectorAll(
+    'content-editable-void-no-select img[alt="Notion AI Face"]',
+  );
+  icons.forEach((icon) => {
+    const askAi = icon?.parentElement?.parentElement;
+    if (askAi) {
+      askAi.remove();
+    }
+  });
+}
+
+function removeGettingStartAiMeeting(
+  _mutations: MutationRecord[],
+  _observer: MutationObserver,
+  notionAppNode: HTMLElement,
+) {
+  const aiMeetingCandis = notionAppNode.querySelectorAll(
+    ".content-editable-void-no-select > div > div > div > div > div > div",
+  );
+
+  for (const aiMeetingCandi of aiMeetingCandis) {
+    if (
+      aiMeetingCandi.textContent &&
+      aiMeetingCandi.textContent.toLowerCase().includes("ai meeting")
+    ) {
+      // Hide instead of delete to prevent crash
+      (aiMeetingCandi as HTMLElement).style.display = "none";
+      return true;
+    }
+  }
+  return false;
+}
+
+function onGettingStart(
+  gettingStartCtx: { cleanup: (() => void) | undefined },
+  notionAppNode: HTMLElement,
+) {
+  if (window.location.href.match(/www.notion.so\/[a-z0-9]+$/)) {
+    const { cleanup } = repeatObserver(
+      [removeGettingStartAiMeeting, removeGettingStartAskAi],
+      notionAppNode,
+    );
+    if (gettingStartCtx.cleanup != undefined) {
+      gettingStartCtx.cleanup();
+    } else {
+      gettingStartCtx.cleanup = cleanup;
+    }
+  } else {
+    if (gettingStartCtx.cleanup != undefined) {
+      gettingStartCtx.cleanup();
+    }
+  }
+}
+
+function removeAiOverlay(
+  _mutations: MutationRecord[],
+  _observer: MutationObserver,
+  notionAppNode: HTMLElement,
+) {
+  const aiMeetingMenus = notionAppNode.querySelectorAll(
+    ".notion-overlay-container div[role='menuitem'] div[role='presentation']",
+  );
+  for (const aiMenu of aiMeetingMenus) {
+    const textMatches = ["ai meeting"];
+    for (const textMatch of textMatches) {
+      if (
+        aiMenu.innerHTML?.toLowerCase().startsWith(textMatch) &&
+        aiMenu?.parentElement
+      ) {
+        let parent: HTMLElement | undefined =
+          aiMenu.parentElement as HTMLElement;
+        while (parent.role != "menuitem") {
+          parent = parent?.parentElement as HTMLElement;
+        }
+        parent?.remove();
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function removeMeetAiNotes(
+  _mutations: MutationRecord[],
+  _observer: MutationObserver,
+  notionAppNode: HTMLElement,
+) {
+  notionAppNode
+    .querySelectorAll("main.notion-frame div > span")
+    .forEach((ele) => {
+      if (
+        ele == undefined ||
+        ele.textContent == undefined ||
+        !ele.textContent.toLowerCase().includes("ai meeting")
+      ) {
+        return;
+      }
+      let parent = ele;
+      while ((parent as HTMLElement)?.style?.display != "contents") {
+        parent = parent.parentElement as HTMLElement;
+      }
+      parent.remove();
+    });
+}
+
+function onMeet(
+  meetCtx: { cleanup: (() => void) | undefined },
+  notionAppNode: HTMLElement,
+) {
+  if (window.location.href.match(/www.notion.so\/meet/)) {
+    removeMeetAiNotes([], null as unknown as MutationObserver, notionAppNode);
+    const { cleanup } = repeatObserver([removeMeetAiNotes], notionAppNode);
+    if (meetCtx.cleanup != undefined) {
+      meetCtx.cleanup();
+    } else {
+      meetCtx.cleanup = cleanup;
+    }
+  } else {
+    if (meetCtx.cleanup != undefined) {
+      meetCtx.cleanup();
+    }
+  }
+}
+
 function main() {
   alterPlaceHolderText();
 
@@ -291,10 +526,25 @@ function main() {
 
   singleTimeObserver(removeRunOutOfResponse, notionAppNode);
 
-  singleTimeObserver(removeAiMenuSidebar, notionAppNode);
+  const gettingStartCtx: { cleanup: (() => void) | undefined } = {
+    cleanup: undefined,
+  };
+  const meetCtx: { cleanup: (() => void) | undefined } = {
+    cleanup: undefined,
+  };
+
+  onGettingStart(gettingStartCtx, notionAppNode);
+  onMeet(meetCtx, notionAppNode);
+
+  window.addEventListener("popstate", () => {
+    onGettingStart(gettingStartCtx, notionAppNode);
+    onMeet(meetCtx, notionAppNode);
+  });
 
   repeatObserver(
     [
+      removeAiSidebarHome,
+      removeAiSidebarMeeting,
       removeFromActionMenu,
       removeFromGetStarted,
       removeFromImage,
@@ -304,6 +554,7 @@ function main() {
       removeFromSettings,
       removeSearchMatch,
       removeFromPageMenu,
+      removeAiOverlay,
     ],
     notionAppNode,
   );

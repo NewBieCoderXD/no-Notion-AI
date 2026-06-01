@@ -77,7 +77,7 @@ function getManifestContent(browser: string) {
     permissions: [],
     content_scripts: [
       {
-        matches: ["*://www.notion.so/*"],
+        matches: ["*://www.notion.so/*","*://app.notion.com/*"],
         js: ["content/notion_ai_remover.js"],
       },
     ],

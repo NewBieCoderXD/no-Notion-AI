@@ -1,4 +1,5 @@
 // const placeholderText = "Press ‘space’ for AI or ‘/’ for commands";
+const domainWithProtocolPattern = /(?:[a-z]+:)?\/\/[^\\/]+/;
 
 function addCSS(css: string) {
   document.head.appendChild(document.createElement("style")).innerHTML = css;
@@ -442,7 +443,7 @@ function onGettingStart(
   gettingStartCtx: { cleanup: (() => void) | undefined },
   notionAppNode: HTMLElement,
 ) {
-  if (window.location.href.match(/www.notion.so\/[a-z0-9]+$/)) {
+  if (window.location.href.match(new RegExp(`^${domainWithProtocolPattern.source}\\/[a-z0-9]+$`))) {
     const { cleanup } = repeatObserver(
       [removeGettingStartAiMeeting, removeGettingStartAskAi],
       notionAppNode,
@@ -462,7 +463,7 @@ function onGettingStart(
 function onLibrary(
   libraryCtx: { cleanup: (() => void) | undefined },
   notionAppNode: HTMLElement,){
-  if (window.location.href.match(/www.notion.so\/library/)) {
+  if (window.location.href.match(new RegExp(`^${domainWithProtocolPattern.source}\\/library`))) {
     const { cleanup } = repeatObserver(
       [removeFromLibrary],
       notionAppNode,
@@ -534,7 +535,7 @@ function onMeet(
   meetCtx: { cleanup: (() => void) | undefined },
   notionAppNode: HTMLElement,
 ) {
-  if (window.location.href.match(/www.notion.so\/meet/)) {
+  if (window.location.href.match(new RegExp(`^${domainWithProtocolPattern.source}\\/meet`))) {
     removeMeetAiNotes([], null as unknown as MutationObserver, notionAppNode);
     const { cleanup } = repeatObserver([removeMeetAiNotes], notionAppNode);
     if (meetCtx.cleanup != undefined) {

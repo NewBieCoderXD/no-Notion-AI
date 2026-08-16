@@ -1,15 +1,10 @@
 name: Build and Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      tag_name:
-        description: "Tag name (e.g., v1.0.0)"
-        required: true
-      tag_message:
-        description: "Tag message"
-        required: false
-        default: ""
+  workflow_dispatch: # Manual build -> Uploads artifact only
+  push:
+    tags:
+      - "v*.*.*" # Tag push -> Builds & creates Draft Release
 
 jobs:
   build:
@@ -18,28 +13,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Nodejs
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
 
-      - name: get npm version
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@v1.3.1
+      # Assert version match when triggered by a tag push
+      - name: Assert version match
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          PACKAGE_VERSION=$(pnpm pkg get version | tr -d '"')
+          EXPECTED_VERSION="${GITHUB_REF#refs/tags/}"
 
-      - name: assert npm version
-        uses: nick-fields/assert-action@v2
-        with:
-          expected: ${{ github.event.inputs.tag_name }}
-          actual: v${{ steps.package-version.outputs.current-version}}
-          comparison: exact
-          
+          if [ "v$PACKAGE_VERSION" != "$EXPECTED_VERSION" ]; then
+            echo "Version mismatch! Expected $EXPECTED_VERSION, found v$PACKAGE_VERSION"
+            exit 1
+          fi
+
+      # Install & Build
       - name: Build extension
         run: |
-          npm install
-          npm run build
+          pnpm install --frozen-lockfile
+          pnpm run build
 
-      - name: Upload compressed zips as an artifact for release
+      # Upload Artifact (Always runs for both triggers)
+      - name: Upload compressed zips
         uses: actions/upload-artifact@v4
         with:
           name: built_package
@@ -48,26 +52,11 @@ jobs:
 
   release:
     needs: build
+    if: startsWith(github.ref, 'refs/tags/') # Only runs on tag pushes
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup git
-        uses: fregante/setup-git-user@v2
-
-      - name: Delete a tag
-        continue-on-error: true
-        run: |
-          git push -d origin "${{ github.event.inputs.tag_name }}"
-
-      - name: Create and push tag
-        run: |
-          git tag -a "${{ github.event.inputs.tag_name }}" -m "${{ github.event.inputs.tag_message }}"
-          git push origin "${{ github.event.inputs.tag_name }}"
-
       - name: Download built artifact
         uses: actions/download-artifact@v4
         with:
@@ -78,6 +67,6 @@ jobs:
       - name: Create draft release
         uses: ncipollo/release-action@v1
         with:
-          tag: ${{ github.event.inputs.tag_name }}
+          tag: ${{ github.ref_name }}
           artifacts: "built_package/*.zip"
           draft: true

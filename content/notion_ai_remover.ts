@@ -235,8 +235,32 @@ function addSpaceKeyMiddleware() {
   });
 }
 
-function removeParent(root: HTMLElement, query: string) {
-  root.querySelector(query)?.parentElement?.remove();
+// function removeParent(root: HTMLElement, query: string) {
+//   root.querySelector(query)?.parentElement?.remove();
+// }
+
+function removeFromEmbedHtml(
+  _mutations: MutationRecord[],
+  _observer: MutationObserver,
+  notionAppNode: HTMLElement,){
+
+  const createOrUploadCandidates = notionAppNode.querySelectorAll(".notion-page-content div.notion-selectable.notion-embed-block div.content-editable-void-no-select > div > div > div > div > div")
+  for(const createOrUploadCandidate of createOrUploadCandidates){
+    if(createOrUploadCandidate.textContent?.toLowerCase().includes("create or upload html")){
+      createOrUploadCandidate.innerHTML=createOrUploadCandidate.innerHTML.replace(/create or upload html/ig,"Upload HTML")
+    }
+  }
+  
+  const elements= notionAppNode.querySelectorAll(".notion-app-inner .notion-overlay-container .notion-scroller.vertical .notion-selectable-container div > div > div > div > div > div");
+
+  for (const createWithAi of elements) {
+    const textMatches = ["create with ai"];
+    for (const textMatch of textMatches) {
+      if (createWithAi.innerHTML?.toLowerCase().includes(textMatch)) {
+        (createWithAi as HTMLElement).parentElement!.parentElement!.remove()
+      }
+    }
+  }
 }
 
 function removeFromActionMenu(
@@ -244,29 +268,13 @@ function removeFromActionMenu(
   _observer: MutationObserver,
   notionAppNode: HTMLElement,
 ) {
-  // ai explain button
-  removeParent(notionAppNode, ".notion-text-action-menu .aiExplainThis");
-  removeParent(
-    notionAppNode,
-    ".notion-text-action-menu svg.questionMarkCircle",
-  );
-  // ai face
-  removeParent(
-    notionAppNode,
-    `.notion-text-action-menu div[role="button"] img[alt="Notion AI Face"]`,
-  );
-  // ai improve writing button
-  removeParent(notionAppNode, ".notion-text-action-menu .aiImproveWriting");
-  removeParent(notionAppNode, ".notion-text-action-menu svg.magicWand");
+  const buttons= notionAppNode.querySelectorAll(".notion-app-inner .notion-overlay-container .notion-scroller.vertical div[data-popup-origin='true']");
 
-  const aiMenus = notionAppNode.querySelectorAll(
-    ".notion-text-action-menu > div > div > div",
-  );
-  for (const aiMenu of aiMenus) {
-    const textMatches = ["improve", "edit with ai"];
+  for (const button of buttons) {
+    const textMatches = ["ai meeting", "ai block"];
     for (const textMatch of textMatches) {
-      if (aiMenu.innerHTML?.toLowerCase().includes(textMatch)) {
-        (aiMenu as HTMLElement).style.display = "none";
+      if (button.innerHTML?.toLowerCase().includes(textMatch)) {
+        (button as HTMLElement).style.display = "none";
       }
     }
   }
@@ -588,6 +596,7 @@ function main() {
     [
       removeAiSidebarHome,
       removeAiSidebarMeeting,
+      removeFromEmbedHtml,
       removeFromActionMenu,
       removeFromGetStarted,
       removeFromImage,

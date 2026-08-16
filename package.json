@@ -4,10 +4,11 @@
     "browsers": "firefox,edge_and_chrome"
   },
   "scripts": {
-    "build": "npm run clean && tsx cmd/build.ts",
+    "build": "pnpm clean && tsx cmd/build.ts",
     "clean": "shx rm -rf dist/*",
     "lint": "eslint --fix"
   },
+  "packageManager": "pnpm@11.20.0",
   "devDependencies": {
     "@eslint/js": "^9.20.0",
     "@types/archiver": "^6.0.3",
